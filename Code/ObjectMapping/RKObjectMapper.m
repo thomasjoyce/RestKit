@@ -217,7 +217,9 @@ static const NSString* kRKModelMapperMappingFormatParserKey = @"RKMappingFormatP
 					NSDictionary* dict = [NSDictionary dictionaryWithObject:mappedObjects forKey:key];
 					[objects addObject:dict];
 				} else {
-					NSLog(@"Unknown key: '%@'. Skipping", key);
+					NSLog(@"Unknown key: '%@'.", key);
+					NSDictionary* dict = [NSDictionary dictionaryWithObject:object forKey:key];
+					[objects addObject:dict];
 					//[objects addObjectsFromArray:[self mapObjectsFromArrayOfDictionaries:(NSArray*)object]];
 				}
 			} else {
