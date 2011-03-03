@@ -1,4 +1,4 @@
-Introduction
+Introduction.
 =========================
 
 RestKit is a library for interacting with Restful web services in Objective C. It provides a set of primitives for interacting with web services wrapping GET, POST, PUT and DELETE HTTP verbs behind a clean, simple interface. RestKit also provides a system for modeling remote resources by mapping them from JSON payloads back into domain objects. Object mapping functions with normal NSObject derived classes with properties. There is also an object mapping implementation included that provides a Core Data backed store for persisting objects loaded from the web.
