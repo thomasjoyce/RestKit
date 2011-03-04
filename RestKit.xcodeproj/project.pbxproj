@@ -1478,16 +1478,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 25042B7C11F62FF500553519 /* Products */;
+					ProjectRef = 25042A9511F62F2400553519 /* OCMock.xcodeproj */;
+				},
+				{
 					ProductGroup = 25956591126DE9CF004BAC4C /* Products */;
 					ProjectRef = 25042C5011F6309000553519 /* OCMock.xcodeproj */;
 				},
 				{
 					ProductGroup = 250BC4DD11F62D4400F3FE5A /* Products */;
 					ProjectRef = 250BC43F11F6261700F3FE5A /* OCMock.xcodeproj */;
-				},
-				{
-					ProductGroup = 25042B7C11F62FF500553519 /* Products */;
-					ProjectRef = 25042A9511F62F2400553519 /* OCMock.xcodeproj */;
 				},
 				{
 					ProductGroup = 250BC44C11F6262600F3FE5A /* Products */;

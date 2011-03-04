@@ -106,11 +106,13 @@ static const NSString* kRKModelMapperMappingFormatParserKey = @"RKMappingFormatP
 	}
 	
 	id result = nil;
+	NSLog(@"[XXX RestKit] RKObjectMapper:parseString: parsing jsonResults from string: %@", string);
 	@try {
 		result = [parser objectFromString:string];
+				NSLog(@"[XXX RestKit] RKObjectMapper:parseString: parsing jsonResults from id: %@", result);
 	}
 	@catch (NSException* e) {
-		NSLog(@"[RestKit] RKObjectMapper:parseString: Exception (%@) parsing error from string: %@", [e reason], string);
+		NSLog(@"[XXX RestKit] RKObjectMapper:parseString: Exception (%@) parsing error from string: %@", [e reason], string);
 	}
 	return result;
 }

@@ -31,16 +31,16 @@
  * The e-mail address of the User
  */
 @property (nonatomic, retain) NSString* email;
+@property (nonatomic, retain) NSString* passwordSalt;
+@property (nonatomic, retain) NSString* action;
 
-/**
- * The username of the User
- */
 @property (nonatomic, retain) NSString* username;
 
 /**
  * An Access Token returned when a User is authenticated
  */
-@property (nonatomic, retain) NSString* singleAccessToken;
+//@property (nonatomic, retain) NSString* singleAccessToken;
+@property (nonatomic, retain) NSString* authenticationToken;
 
 /**
  * The numeric primary key of this User in the remote backend system
@@ -70,7 +70,11 @@
 /**
  * Completes a sign up using the properties assigned to the object
  */
-- (void)signUpWithDelegate:(NSObject<DBUserAuthenticationDelegate>*)delegate;
+//- (void)signUpWithDelegate:(NSObject<DBUserAuthenticationDelegate>*)delegate;
+- (void)signUpWithDelegate:(NSString*)email 
+			   andPassword:(NSString*)password
+				 andCommit:  (NSString*)action
+				  delegate:(NSObject<DBUserAuthenticationDelegate>*)delegate; 
 
 /**
  * Attempts to log a User into the system with a given username and password

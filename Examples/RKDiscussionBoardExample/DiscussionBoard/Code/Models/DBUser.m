@@ -23,9 +23,12 @@ static DBUser* currentUser = nil;
 @implementation DBUser
 
 @dynamic email;
-@dynamic username;
-@dynamic singleAccessToken;
 @dynamic userID;
+@dynamic authenticationToken;
+@dynamic passwordSalt;
+@dynamic username;
+@synthesize action;
+
 @synthesize password = _password;
 @synthesize passwordConfirmation = _passwordConfirmation;
 @synthesize delegate = _delegate;
@@ -34,7 +37,7 @@ static DBUser* currentUser = nil;
  * The property mapping dictionary. This method declares how elements in the JSON
  * are mapped to properties on the object
  */
-+ (NSDictionary*)elementToPropertyMappings {
+/*+ (NSDictionary*)elementToPropertyMappings {
 	return [NSDictionary dictionaryWithKeysAndObjects:
 			@"id", @"userID",
 			@"email", @"email",
@@ -43,7 +46,25 @@ static DBUser* currentUser = nil;
 			@"password", @"password",
 			@"password_confirmation", @"passwordConfirmation",
 			nil];
+}*/
+
+/**
+ * The property mapping dictionary. This method declares how elements in the JSON
+ * are mapped to properties on the object
+ */
++ (NSDictionary*)elementToPropertyMappings {
+	NSLog(@"===> elementToPropertyMappings xxx");
+	return [NSDictionary dictionaryWithKeysAndObjects:
+			@"id", @"userID", 
+			@"email", @"email",
+			@"username", @"username",
+			@"authentication_token", @"authenticationToken",
+			@"password", @"password",
+			@"password_confirmation", @"passwordConfirmation",
+			nil];
 }
+
+
 
 /**
  * Informs RestKit which property contains the primary key for identifying
@@ -84,10 +105,52 @@ static DBUser* currentUser = nil;
  * abstraction around Sign-Up as a concept and exposed notifications and delegate
  * methods that make it much more meaningful than a POST/parse/process cycle would be.
  */
-- (void)signUpWithDelegate:(NSObject<DBUserAuthenticationDelegate>*)delegate {
+//- (void)signUpWithDelegate:(NSObject<DBUserAuthenticationDelegate>*)delegate {
+//	_delegate = delegate;
+//	[[RKObjectManager sharedManager] postObject:self delegate:self];
+//}
+
+- (void)signUpWithDelegate:(NSString*)email 
+			   andPassword:(NSString*)password
+				 andCommit:(NSString*)action
+				  delegate:(NSObject<DBUserAuthenticationDelegate>*)delegate {
+	
 	_delegate = delegate;
 	[[RKObjectManager sharedManager] postObject:self delegate:self];
+	
+	NSLog(@"===> signUpWithDelegate here.");
+	
+	
+	RKObjectLoader* objectLoader = [[RKObjectManager sharedManager] objectLoaderWithResourcePath:@"/api/users.json" delegate:self];
+	objectLoader.method = RKRequestMethodPOST;
+	
+	//email = @"iWillFollowYou@jesus.com";
+    //password = @"password123";
+	//NSString*  password_confirmation = @"password123";
+	//commit = @"Create";
+	
+	NSLog(@"===> Begin: SignUP Prep Param");
+	NSLog(@"Adding action email: %@", email);
+	NSLog(@"Adding action password: %@", password);
+	NSLog(@"Adding action commit: [%@]", action);
+    NSLog(@"===> End: SignUP Prep Param");
+	
+	
+	objectLoader.params = [NSDictionary dictionaryWithKeysAndObjects:@"commit", action,
+						                                             @"user[email]", email, 
+						                                             @"user[password]", password, 
+						                                             @"user[password_confirmation]", password,
+																	 nil];
+	
+	
+	objectLoader.targetObject = self;	
+	objectLoader.managedObjectStore = [RKObjectManager sharedManager].objectStore;	
+	[objectLoader send];
+	
+	NSLog(@"===> End: signUpWithDelegate. SEND");
+	
 }
+
 
 /**
  * Implementation of a RESTful login pattern. We construct an object loader addressed to
@@ -134,20 +197,32 @@ static DBUser* currentUser = nil;
 }
 
 - (void)objectLoader:(RKObjectLoader*)objectLoader didLoadObjects:(NSArray *)objects {
+	
 	// NOTE: We don't need objects because self is the target of the mapping operation
+	NSLog(@"XXX didLoadObjects");
 	
 	if ([objectLoader wasSentToResourcePath:@"/login"]) {
+		NSLog(@"Loaded Result - Login");
 		// Login was successful
 		[self loginWasSuccessful];
-	} else if ([objectLoader wasSentToResourcePath:@"/signup"]) { 
+	//} else if ([objectLoader wasSentToResourcePath:@"/signup"]) { 
+		
+    } else if ([objectLoader wasSentToResourcePath:@"/api/users.json"]) { 
+		[self.delegate userDidSignUp:self];
+		NSLog(@"Loaded Result - Registration");
+		DBUser * user = [objects objectAtIndex:0];  
+		NSLog(@"Loaded Results: User ID #%@ -> Email: %@, AuthToken: %@", user.userID, user.email, user.authenticationToken);
+
+		
 		// Sign Up was successful
-		if ([self.delegate respondsToSelector:@selector(userDidSignUp:)]) {
-			[self.delegate userDidSignUp:self];
-		}
+		//if ([self.delegate respondsToSelector:@selector(userDidSignUp:)]) {
+		//	[self.delegate userDidSignUp:self];
+		//}
 		
 		// Complete the login as well
 		[self loginWasSuccessful];		
 	} else if ([objectLoader wasSentToResourcePath:@"/logout"]) {
+		NSLog(@"Loaded Result - Logout");
 		// Logout was successful
 
 		// Clear the stored credentials
@@ -165,11 +240,13 @@ static DBUser* currentUser = nil;
 
 - (void)objectLoader:(RKObjectLoader *)objectLoader didFailWithError:(NSError*)error {	
 	if ([objectLoader wasSentToResourcePath:@"/login"]) {
+		NSLog(@"didFailWithError - Login");
 		// Login failed
 		if ([self.delegate respondsToSelector:@selector(user:didFailLoginWithError:)]) {
 			[self.delegate user:self didFailLoginWithError:error];
 		}
 	} else if ([objectLoader wasSentToResourcePath:@"/signup"]) {
+		NSLog(@"didFailWithError - Registration");
 		// Sign Up failed
 		if ([self.delegate respondsToSelector:@selector(user:didFailSignUpWithError:)]) {
 			[self.delegate user:self didFailSignUpWithError:error];
@@ -178,7 +255,7 @@ static DBUser* currentUser = nil;
 }
 
 - (BOOL)isLoggedIn {
-	return self.singleAccessToken != nil;
+	return self.authenticationToken != nil;
 }
 
 - (BOOL)canModifyObject:(DBContentObject*)object {

@@ -42,6 +42,13 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Initialize the RestKit Object Manager
 	RKObjectManager* objectManager = [RKObjectManager objectManagerWithBaseURL:DBRestKitBaseURL];
+	//RKObjectManager* objectManager = [RKObjectManager objectManagerWithBaseURL:AntzRestKitBaseURL];
+	
+	// Setting up to gain access to rails backend permission.
+	NSLog(@"===> Add auth token");
+	objectManager.client.username =  @"lkmxGbbhEHTAUrFqU39A";
+	objectManager.client.password =  @"x";
+	NSLog(@"Done assign auth token.");
 
 	// Set the default refresh rate to 1. This means we should always hit the web if we can.
 	// If the server is unavailable, we will load from the Core Data cache.
@@ -62,6 +69,7 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 	// back to local object representations. Here we instruct RestKit how to connect
 	// sub-dictionaries of attributes to local classes.
 	RKObjectMapper* mapper =  objectManager.mapper;
+	mapper.format = RKMappingFormatJSON;
 	[mapper registerClass:[DBUser class] forElementNamed:@"user"];
 	[mapper registerClass:[DBTopic class] forElementNamed:@"topic"];
 	[mapper registerClass:[DBPost class] forElementNamed:@"post"];
@@ -82,7 +90,8 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 	// forgery protection.
 	RKRailsRouter* router = [[[RKRailsRouter alloc] init] autorelease];
 	[router setModelName:@"user" forClass:[DBUser class]];
-	[router routeClass:[DBUser class] toResourcePath:@"/signup" forMethod:RKRequestMethodPOST];
+	//[router routeClass:[DBUser class] toResourcePath:@"/signup" forMethod:RKRequestMethodPOST];
+	[router routeClass:[DBUser class] toResourcePath:@"/api/users.json" forMethod:RKRequestMethodPOST];
 	[router routeClass:[DBUser class] toResourcePath:@"/login" forMethod:RKRequestMethodPUT];
 
 	[router setModelName:@"topic" forClass:[DBTopic class]];
@@ -94,6 +103,8 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 	[router routeClass:[DBPost class] toResourcePath:@"/topics/(topicID)/posts" forMethod:RKRequestMethodPOST];
 	[router routeClass:[DBPost class] toResourcePath:@"/topics/(topicID)/posts/(postID)" forMethod:RKRequestMethodPUT];
 	[router routeClass:[DBPost class] toResourcePath:@"/topics/(topicID)/posts/(postID)" forMethod:RKRequestMethodDELETE];
+	
+	
 
 	objectManager.router = router;
 
@@ -118,8 +129,8 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 	// Initialize authenticated access if we have a logged in current User reference
 	DBUser* user = [DBUser currentUser];
 	if ([user isLoggedIn]) {
-		NSLog(@"Found logged in User record for username '%@' [Access Token: %@]", user.username, user.singleAccessToken);
-		[objectManager.client setValue:user.singleAccessToken forHTTPHeaderField:kDBAccessTokenHTTPHeaderField];
+		NSLog(@"Found logged in User record for username '%@' [Access Token: %@]", user.email, user.authenticationToken);
+		[objectManager.client setValue:user.authenticationToken forHTTPHeaderField:kDBAccessTokenHTTPHeaderField];
 	}
 	
 	// Fire up the UI!
@@ -133,7 +144,7 @@ static NSString* const kDBAccessTokenHTTPHeaderField = @"X-USER-ACCESS-TOKEN";
 - (void)setAccessTokenHeaderFromAuthenticationNotification:(NSNotification*)notification {
 	DBUser* user = (DBUser*) [notification object];
 	RKObjectManager* objectManager = [RKObjectManager sharedManager];
-	[objectManager.client setValue:user.singleAccessToken forHTTPHeaderField:kDBAccessTokenHTTPHeaderField];
+	[objectManager.client setValue:user.authenticationToken forHTTPHeaderField:kDBAccessTokenHTTPHeaderField];
 }
 
 - (void)dealloc {

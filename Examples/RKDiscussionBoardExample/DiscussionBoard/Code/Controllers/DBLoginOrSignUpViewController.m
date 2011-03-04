@@ -55,7 +55,7 @@
 	_usernameField.autocapitalizationType = UITextAutocapitalizationTypeNone;
 	_usernameField.delegate = self;
 	_usernameField.returnKeyType = UIReturnKeyNext;
-
+    
 	_passwordField = [[UITextField alloc] initWithFrame:CGRectZero];
 	[_passwordField setSecureTextEntry:YES];
 	_passwordField.delegate = self;
@@ -107,13 +107,25 @@
 
 - (void)loginOrSignup {
 	if (_showingSignup) {
+		
 		// Signup
 		DBUser* user = [DBUser object];
-		user.username = _usernameField.text;
+		//user.username = _usernameField.text;
 		user.email = _emailField.text;
 		user.password = _passwordField.text;
 		user.passwordConfirmation = _passwordConfirmationField.text;
-		[user signUpWithDelegate:self];
+		//[user signUpWithDelegate:self];
+		user.action = @"Create";
+		
+		NSLog(@"===> REGISTRATION");
+		NSLog(@"Adding action emailAddressField: %@", _emailField.text);
+		NSLog(@"Adding action passwordField: %@", _passwordField.text);
+		NSLog(@"Adding action commit: %@", user.action);
+		[user signUpWithDelegate: user.email
+					 andPassword: user.password
+					   andCommit: user.action
+						delegate: self];
+		
 	} else {
 		// Login
 		DBUser* user = [DBUser object];		
