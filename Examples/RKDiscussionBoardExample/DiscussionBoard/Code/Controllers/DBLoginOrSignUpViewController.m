@@ -123,6 +123,7 @@
 		NSLog(@"Adding action commit: %@", user.action);
 		[user signUpWithDelegate: user.email
 					 andPassword: user.password
+		             andPasswordConfirmation:user.passwordConfirmation 
 					   andCommit: user.action
 						delegate: self];
 		

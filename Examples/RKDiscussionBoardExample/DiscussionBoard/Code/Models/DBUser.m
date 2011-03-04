@@ -111,7 +111,8 @@ static DBUser* currentUser = nil;
 //}
 
 - (void)signUpWithDelegate:(NSString*)email 
-			   andPassword:(NSString*)password
+			   andPassword:(NSString*)newPassword
+               andPasswordConfirmation:(NSString*)newPasswordConfirmation  
 				 andCommit:(NSString*)action
 				  delegate:(NSObject<DBUserAuthenticationDelegate>*)delegate {
 	
@@ -124,25 +125,27 @@ static DBUser* currentUser = nil;
 	RKObjectLoader* objectLoader = [[RKObjectManager sharedManager] objectLoaderWithResourcePath:@"/api/users.json" delegate:self];
 	objectLoader.method = RKRequestMethodPOST;
 	
-	//email = @"iWillFollowYou@jesus.com";
-    //password = @"password123";
-	//NSString*  password_confirmation = @"password123";
-	//commit = @"Create";
 	
 	NSLog(@"===> Begin: SignUP Prep Param");
 	NSLog(@"Adding action email: %@", email);
-	NSLog(@"Adding action password: %@", password);
+	NSLog(@"Adding action password: %@", newPassword);
+	NSLog(@"Adding action password: %@", newPasswordConfirmation);
 	NSLog(@"Adding action commit: [%@]", action);
     NSLog(@"===> End: SignUP Prep Param");
 	
-	
-	objectLoader.params = [NSDictionary dictionaryWithKeysAndObjects:@"commit", action,
-						                                             @"user[email]", email, 
-						                                             @"user[password]", password, 
-						                                             @"user[password_confirmation]", password,
-																	 nil];
-	
-	
+	// Sending POST request to URL http://jesusrails.heroku.com/api/users.json. 
+	// HTTP Body: {"commit":"Create","user":{"password":"thomass123","password_confirmation":"thomass123","email":"boy@love.girl"}}
+	objectLoader.params = [RKJSONSerialization JSONSerializationWithObject:[NSDictionary dictionaryWithKeysAndObjects: 
+																			 @"commit", action,
+																			 @"user",
+																			         [NSDictionary dictionaryWithKeysAndObjects: 
+																			          @"email", email, 
+																			          @"password", newPassword,
+																					  @"password_confirmation", newPasswordConfirmation,
+																			          nil], 
+																			 nil]
+				          ]; 
+						   
 	objectLoader.targetObject = self;	
 	objectLoader.managedObjectStore = [RKObjectManager sharedManager].objectStore;	
 	[objectLoader send];

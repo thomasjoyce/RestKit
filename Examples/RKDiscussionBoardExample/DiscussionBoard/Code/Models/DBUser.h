@@ -72,9 +72,10 @@
  */
 //- (void)signUpWithDelegate:(NSObject<DBUserAuthenticationDelegate>*)delegate;
 - (void)signUpWithDelegate:(NSString*)email 
-			   andPassword:(NSString*)password
-				 andCommit:  (NSString*)action
-				  delegate:(NSObject<DBUserAuthenticationDelegate>*)delegate; 
+			     andPassword:(NSString*)newPassword
+                 andPasswordConfirmation:(NSString*)newPasswordConfirmation
+			     andCommit:  (NSString*)action
+				 delegate:(NSObject<DBUserAuthenticationDelegate>*)delegate; 
 
 /**
  * Attempts to log a User into the system with a given username and password
