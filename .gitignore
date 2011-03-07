@@ -1,6 +1,5 @@
 # the build
-Build
-DerivedData
+Examples/RKDiscussionBoardExample/DiscussionBoard/build/DiscussionBoard.build/*
 
 # temp nibs and swap files
 *~.nib

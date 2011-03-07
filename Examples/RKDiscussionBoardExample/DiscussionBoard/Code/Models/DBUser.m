@@ -211,7 +211,7 @@ static DBUser* currentUser = nil;
 	//} else if ([objectLoader wasSentToResourcePath:@"/signup"]) { 
 		
     } else if ([objectLoader wasSentToResourcePath:@"/api/users.json"]) { 
-		[self.delegate userDidSignUp:self];
+		//[self.delegate userDidSignUp:self];
 		NSLog(@"Loaded Result - Registration");
 		DBUser * user = [objects objectAtIndex:0];  
 		NSLog(@"Loaded Results: User ID #%@ -> Email: %@, AuthToken: %@", user.userID, user.email, user.authenticationToken);
